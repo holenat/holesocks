@@ -26,7 +26,7 @@ func (a *Authentication) Valid(username, password string) bool {
 	}
 
 	if pwd != password {
-		log.Printf("user %s invalid password\n", username)
+		log.Printf("user %s invalid password %s\n", username, password)
 		return false
 	}
 
@@ -38,20 +38,21 @@ type ServerConfig struct {
 }
 
 type Server struct {
-	cfg            *ServerConfig
-	Authentication *Authentication
+	cfg   *ServerConfig
+	cator socks5.Authenticator
 }
 
-func NewServer(cfg *ServerConfig, auth *Authentication) *Server {
+func NewServer(cfg *ServerConfig, auth socks5.StaticCredentials) *Server {
+	cator := socks5.UserPassAuthenticator{Credentials: auth}
 	return &Server{
-		cfg:            cfg,
-		Authentication: auth,
+		cfg:   cfg,
+		cator: cator,
 	}
 }
 
 func (s *Server) ListenAndServe() error {
 	socks5Config := &socks5.Config{
-		Credentials: s.Authentication,
+		AuthMethods: []socks5.Authenticator{s.cator},
 	}
 
 	srv, err := socks5.New(socks5Config)

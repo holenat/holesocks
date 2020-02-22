@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"log"
+
+	"github.com/armon/go-socks5"
 )
 
 func main() {
@@ -19,7 +21,7 @@ func main() {
 
 	log.Printf("%v\n", cfg)
 
-	auth := NewAuthentication(cfg.Users)
+	auth := socks5.StaticCredentials(cfg.Users)
 
 	s := NewServer(&ServerConfig{
 		Addr: cfg.Addr,
